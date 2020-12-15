@@ -14,6 +14,7 @@
 #include <errno.h>
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 static float calc_aic(double f_err, double b_err) {
     float aic;
@@ -357,7 +358,7 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
         memset(buf_sta,0,ndat*sizeof(float));
         memset(buf_lta,0,ndat*sizeof(float));
         /*for(i=(ndat-nlta-1);i>nlta;i--){*/
-        for(i=(ndat-nlta-1);i>i4;i--){
+        for(i=(ndat-nlta-1);i>MAX(0,i4);i--){
             for(j=(i+nsta-1);j>=(i);j--){
                 buf_sta[i] += fabsf(buff4_s[j])/(float)nsta;
             }
