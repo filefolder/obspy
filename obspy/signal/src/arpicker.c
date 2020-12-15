@@ -210,13 +210,12 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
 
 
     // Leonard & Kennett AIC Criterion - Model2
-    for(i=0;i<(i2+nl_p);i++){
+    for(i=0;i<(MIN(ndat,i2+nl_p));i++){ //added the MIN's         
         buff1[i] *= buff1[i]*buff1[i];
     }
     //flip the trace in time
-    for(i=0;i<(i2+nl_p);i++){
-        printf("E) i = %d, ndat = %d \n",i,ndat);      
-        buff2[i2+nl_p-i-1] = buff1[i];
+    for(i=0;i<(MIN(ndat,i2+nl_p));i++){
+        buff2[i2+nl_p-i-1] = buff1[i]; 
     }
 
     errcode = spr_coef_paz(buff1-1,nl_p,m1_p,&pm,ar_f-1);
