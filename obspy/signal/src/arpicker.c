@@ -105,11 +105,11 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
     if (b_error == NULL) {
         EXIT(8);
     }
-    ar_f = (float *)calloc(ndat*0.6,sizeof(float));
+    ar_f = (float *)calloc(ndat*1,sizeof(float));
     if (ar_f == NULL) {
         EXIT(9);
     }
-    ar_b = (float *)calloc(ndat*0.6,sizeof(float));
+    ar_b = (float *)calloc(ndat*1,sizeof(float));
     if (ar_b == NULL) {
         EXIT(10);
     }
