@@ -191,7 +191,7 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
             buf_sta[i+nlta] += buff3[j]/(float)nsta;
         }
         for(j=(i);j<(i+nlta);j++){
-            //printf("B) i+nlta = %d, j = %d, len(buf_lta) = %d, len(buff3) = %d \n",i+nlta,j,sizeof(buf_lta),sizeof(buff3));               
+            printf("B) i+nlta = %d, j = %d, len(buf_lta) = %d\n",i+nlta,j,sizeof(buf_lta));               
             buf_lta[i+nlta] += buff3[j]/(float)nlta;
         }
         if(buf_lta[i+nlta]>0. && (buf_sta[i+nlta]/buf_lta[i+nlta]) > stlt){
@@ -210,14 +210,14 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
 
 
     // Leonard & Kennett AIC Criterion - Model2
-    for(i=0;i<i2+nl_p;i++){ //added the MIN's         
+    for(i=0;i<i2+nl_p;i++){       
         buff1[i] *= buff1[i]*buff1[i];
     }
     //flip the trace in time
     for(i=0;i<i2+nl_p;i++){
         buff2[i2+nl_p-i-1] = buff1[i]; 
     }
-    printf("good to here 1");
+
     errcode = spr_coef_paz(buff1-1,nl_p,m1_p,&pm,ar_f-1);
     if (errcode != 0) {
         EXIT(errcode);
@@ -227,7 +227,6 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
         EXIT(errcode);
     }
 
-    printf("good to here 2");
     //estimating the Forward-BackwardAIC 
     for(i=m1_p;i<i2-nl_p;i++){
         for(k=0;k<nl_p;k++){
