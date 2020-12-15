@@ -186,16 +186,16 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
     }
 
     for(i=0;i<(i1-nlta);i++){ 
-        for(j=(i+nlta-nsta);j<(i+nlta);j++){
-            printf("A) i+nlta = %d, j = %d, len(buf_sta) = %d, len(buff3) = %d \n",i+nlta,j,sizeof(buf_sta),sizeof(buff3));            
+        for(j=(i+nlta-nsta-sizeof(buff3));j<(i+nlta);j++){
+            //printf("A) i+nlta = %d, j = %d, len(buf_sta) = %d, len(buff3) = %d \n",i+nlta,j,sizeof(buf_sta),sizeof(buff3));            
             buf_sta[i+nlta] += buff3[j]/(float)nsta;
         }
-        for(j=(i);j<(i+nlta);j++){
-            printf("B) i+nlta = %d, j = %d, len(buf_lta) = %d, len(buff3) = %d \n",i+nlta,j,sizeof(buf_lta),sizeof(buff3));               
+        for(j=(i);j<(i+nlta-sizeof(buff3));j++){
+            //printf("B) i+nlta = %d, j = %d, len(buf_lta) = %d, len(buff3) = %d \n",i+nlta,j,sizeof(buf_lta),sizeof(buff3));               
             buf_lta[i+nlta] += buff3[j]/(float)nlta;
         }
         if(buf_lta[i+nlta]>0. && (buf_sta[i+nlta]/buf_lta[i+nlta]) > stlt){
-            printf("C) i+nlta = %d, len(buf_sta) = %d, len(buf_lta) = %d \n",i+nlta,sizeof(buf_sta),sizeof(buf_lta));        
+            //printf("C) i+nlta = %d, len(buf_sta) = %d, len(buf_lta) = %d \n",i+nlta,sizeof(buf_sta),sizeof(buf_lta));        
             stlt = buf_sta[i+nlta]/buf_lta[i+nlta];
             i2 = i+nlta;
         }
