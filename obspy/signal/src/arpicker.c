@@ -320,6 +320,7 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
     fprintf(stderr,"P-Onset: %f",ptime);
 
     if(s_pick == 1){
+        fprintf("s-picking?")
         memset(f_error,0,ndat*sizeof(float));
         memset(b_error,0,ndat*sizeof(float));
         memset(buf_sta,0,ndat*sizeof(float));
@@ -354,11 +355,12 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
             i5 = ndat;
         }
 
+        fprintf("OK A")
         // STA-LTA in reversed direction
         memset(buf_sta,0,ndat*sizeof(float));
         memset(buf_lta,0,ndat*sizeof(float));
         /*for(i=(ndat-nlta-1);i>nlta;i--){*/
-        for(i=(ndat-nlta-1);i>MAX(0,i4);i--){
+        for(i=(ndat-nlta-1);i>i4;i--){
             for(j=(i+nsta-1);j>=(i);j--){
                 buf_sta[i] += fabsf(buff4_s[j])/(float)nsta;
             }
@@ -366,9 +368,10 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
                 buf_lta[i] += fabsf(buff4_s[j])/(float)nlta;
             }
         }
+        fprintf("OK B")
         lta_max = 0.;
         // here might exist a problem when i4 close to the start of the trace
-        for(i=(i5);i>=MAX(0,i4);i--){
+        for(i=(i5);i>=i4;i--){
             if((buf_sta[i] - buf_lta[i])<lta_max){
                 lta_max = buf_sta[i] - buf_lta[i];
                 i6 = i;
@@ -378,6 +381,7 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
             i6 = 0;
         }
 
+        fprintf("OK C")
         if(i6 > 0 && i6 > i4){
             n65 = (i5-i6);
 
