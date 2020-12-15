@@ -105,11 +105,11 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
     if (b_error == NULL) {
         EXIT(8);
     }
-    ar_f = (float *)calloc(ndat*1,sizeof(float));
+    ar_f = (float *)calloc(ndat/2,sizeof(float));
     if (ar_f == NULL) {
         EXIT(9);
     }
-    ar_b = (float *)calloc(ndat*1,sizeof(float));
+    ar_b = (float *)calloc(ndat/2,sizeof(float));
     if (ar_b == NULL) {
         EXIT(10);
     }
@@ -211,12 +211,11 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
 
     // Leonard & Kennett AIC Criterion - Model2
     for(i=0;i<(i2+nl_p);i++){
-        printf("D) i = %d, len(buff1) = %d \n",i,sizeof(buff1));
         buff1[i] *= buff1[i]*buff1[i];
     }
     //flip the trace in time
     for(i=0;i<(i2+nl_p);i++){
-        printf("E) i = %d, len(buff2) = %d \n",i,sizeof(buff2));      
+        printf("E) i = %d, ndat = %d \n",i,ndat);      
         buff2[i2+nl_p-i-1] = buff1[i];
     }
 
@@ -229,6 +228,7 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
         EXIT(errcode);
     }
 
+    printf("good to here");
     //estimating the Forward-BackwardAIC 
     for(i=m1_p;i<i2-nl_p;i++){
         for(k=0;k<nl_p;k++){
