@@ -185,7 +185,7 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
         EXIT(12);
     }
 
-    for(i=0;i<MAX(0,(i1-nlta));i++){
+    for(i=0;i<=MAX(0,(i1-nlta));i++){ //added MAX and equal sign to <=
         for(j=(i+nlta-nsta);j<(i+nlta);j++){
             buf_sta[i+nlta] += buff3[j]/(float)nsta;
         }
