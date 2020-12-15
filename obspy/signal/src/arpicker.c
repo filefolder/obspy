@@ -175,6 +175,8 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
     // now sta/lta
     nsta = (int)(sta_p*sample_rate);
     nlta = (int)(lta_p*sample_rate);
+    nlta = MIN(nlta,ndat); //added rcp
+    nsta = MIN(nsta,nlta); 
     stlt = 0.;
     buf_sta = (float *)calloc(ndat,sizeof(float));
     if (buf_sta == NULL) {
@@ -318,10 +320,8 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
     // estimation of P-Onset
     *ptime = ((float) (i4-nl_p))/sample_rate;
     //fprintf(stderr,"P-Onset: %f",ptime);
-    printf("uhh");
     
     if(s_pick == 1){
-        printf("s-picking..");
         memset(f_error,0,ndat*sizeof(float));
         memset(b_error,0,ndat*sizeof(float));
         memset(buf_sta,0,ndat*sizeof(float));
@@ -341,7 +341,6 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
                 buf_lta[i] += fabsf(buff4_s[j])/(float)nlta;
             }
         }
-        printf("OK 0");
         // estimation of STA-LTA on horizontal component
         lta_max = 0.;
         for(i = i4;i<(ndat-nlta);i++){
@@ -356,7 +355,6 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
             i5 = ndat;
         }
 
-        printf("OK A");
         // STA-LTA in reversed direction
         memset(buf_sta,0,ndat*sizeof(float));
         memset(buf_lta,0,ndat*sizeof(float));
@@ -369,7 +367,6 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
                 buf_lta[i] += fabsf(buff4_s[j])/(float)nlta;
             }
         }
-        printf("OK B");
         lta_max = 0.;
         // here might exist a problem when i4 close to the start of the trace
         for(i=(i5);i>=i4;i--){
@@ -381,8 +378,7 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
         if(i6 < 0){
             i6 = 0;
         }
-
-        printf("OK C");
+        
         if(i6 > 0 && i6 > i4){
             n65 = (i5-i6);
 
