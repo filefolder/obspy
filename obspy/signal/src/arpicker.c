@@ -317,7 +317,7 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
 
     // estimation of P-Onset
     *ptime = ((float) (i4-nl_p))/sample_rate;
-    fprintf(stderr,"P-Onset: %f",ptime);
+    //fprintf(stderr,"P-Onset: %f",ptime);
     printf("uhh");
     
     if(s_pick == 1){
