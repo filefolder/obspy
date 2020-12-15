@@ -13,9 +13,6 @@
 #include <time.h>
 #include <errno.h>
 
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
-
 static float calc_aic(double f_err, double b_err) {
     float aic;
     double tmp1;
@@ -61,8 +58,8 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
     free(buff1_s); \
     free(buff2); \
     free(buff3); \
-    free(buff4); \
-    free(buff4_s); \
+    //free(buff4); \
+    //free(buff4_s); \
     free(f_error); \
     free(b_error); \
     free(ar_f); \
@@ -191,7 +188,7 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
             buf_sta[i+nlta] += buff3[j]/(float)nsta;
         }
         for(j=(i);j<(i+nlta);j++){
-            printf("B) i+nlta = %d, j = %d, len(buf_lta) = %d\n",i+nlta,j,sizeof(buf_lta));               
+            //printf("B) i+nlta = %d, j = %d, len(buf_lta) = %d\n",i+nlta,j,sizeof(buf_lta));               
             buf_lta[i+nlta] += buff3[j]/(float)nlta;
         }
         if(buf_lta[i+nlta]>0. && (buf_sta[i+nlta]/buf_lta[i+nlta]) > stlt){
@@ -449,6 +446,6 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
             *stime = 0.0f;
     }
 
-    //EXIT(0);
+    EXIT(0);
 }
 #undef EXIT
