@@ -174,9 +174,7 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
 
     // now sta/lta
     nsta = (int)(sta_p*sample_rate);
-    nlta = (int)(lta_p*sample_rate);
-    nlta = MIN(nlta,ndat); //added rcp
-    nsta = MIN(nsta,nlta); 
+    nlta = (int)(lta_p*sample_rate); 
     stlt = 0.;
     buf_sta = (float *)calloc(ndat,sizeof(float));
     if (buf_sta == NULL) {
@@ -187,7 +185,7 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
         EXIT(12);
     }
 
-    for(i=0;i<(i1-nlta);i++){
+    for(i=0;i<MAX(0,(i1-nlta));i++){
         for(j=(i+nlta-nsta);j<(i+nlta);j++){
             buf_sta[i+nlta] += buff3[j]/(float)nsta;
         }
