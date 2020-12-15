@@ -210,11 +210,11 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
 
 
     // Leonard & Kennett AIC Criterion - Model2
-    for(i=0;i<i2+nl_p);i++){ //added the MIN's         
+    for(i=0;i<i2+nl_p;i++){ //added the MIN's         
         buff1[i] *= buff1[i]*buff1[i];
     }
     //flip the trace in time
-    for(i=0;i<i2+nl_p);i++){
+    for(i=0;i<i2+nl_p;i++){
         buff2[i2+nl_p-i-1] = buff1[i]; 
     }
     printf("good to here 1");
