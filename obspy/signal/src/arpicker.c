@@ -56,12 +56,12 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
 #define EXIT(code) \
     free(buff1); \
     free(buff1_s); \
-    free(buff2); \
-    free(buff3); \
+    //free(buff2); \
+    //free(buff3); \
     free(buff4); \
     free(buff4_s); \
-    //free(f_error); \
-    //free(b_error); \
+    free(f_error); \
+    free(b_error); \
     free(ar_f); \
     free(ar_b); \
     free(buf_sta); \
