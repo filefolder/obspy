@@ -187,7 +187,7 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
 
     for(i=0;i<(i1-nlta);i++){ 
         for(j=(i+nlta-nsta);j<(i+nlta);j++){
-            fprintf("A) i+ntla = %d \n",i+ntla);            
+            printf("A) i+ntla = %d \n",i+ntla);            
             buf_sta[i+nlta] += buff3[j]/(float)nsta;
         }
         for(j=(i);j<(i+nlta);j++){
