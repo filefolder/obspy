@@ -449,6 +449,6 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
             *stime = 0.0f;
     }
 
-    EXIT(0);
+    //EXIT(0);
 }
 #undef EXIT
