@@ -318,7 +318,8 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
     // estimation of P-Onset
     *ptime = ((float) (i4-nl_p))/sample_rate;
     fprintf(stderr,"P-Onset: %f",ptime);
-
+    printf("uhh");
+    
     if(s_pick == 1){
         printf("s-picking..");
         memset(f_error,0,ndat*sizeof(float));
@@ -343,7 +344,7 @@ int ar_picker(float *tr, float *tr_1, float *tr_2, int ndat, float sample_rate, 
         printf("OK 0");
         // estimation of STA-LTA on horizontal component
         lta_max = 0.;
-        for(i = i4;i<MIN(sizeof(buf_lta),(ndat-nlta));i++){
+        for(i = i4;i<(ndat-nlta);i++){
             if((buf_sta[i] - buf_lta[i])>lta_max){
                 lta_max = buf_sta[i] - buf_lta[i];
                 i5 = i;
