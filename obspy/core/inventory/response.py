@@ -371,10 +371,10 @@ class PolesZerosResponseStage(ResponseStage):
         if len(frequencies) > 10000 and fast:
             amp = np.abs(resp)
             phase = np.radians(np.unwrap(np.angle(resp, deg=False))) / np.pi
-            amp = scipy.interpolate.InterpolatedUnivariateSpline(
-                resp_frequencies, amp, k=2, s=len(resp_frequencies)/2)(frequencies)
-            phase = scipy.interpolate.InterpolatedUnivariateSpline(
-                resp_frequencies, phase, k=2, s=len(resp_frequencies)/2 )(frequencies)
+            #amp = scipy.interpolate.InterpolatedUnivariateSpline(resp_frequencies, amp, k=2)(frequencies)
+            #phase = scipy.interpolate.InterpolatedUnivariateSpline(resp_frequencies, phase, k=2)(frequencies)            
+            amp = scipy.interpolate.UnivariateSpline(resp_frequencies, amp, k=2, s=len(resp_frequencies)/2)(frequencies)
+            phase = scipy.interpolate.UnivariateSpline(resp_frequencies, phase, k=2, s=len(resp_frequencies)/2 )(frequencies)
             final_resp = np.zeros_like(frequencies) + 0j
             final_resp.real = amp * np.cos(phase)
             final_resp.imag = amp * np.sin(phase)
