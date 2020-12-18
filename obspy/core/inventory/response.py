@@ -355,9 +355,9 @@ class PolesZerosResponseStage(ResponseStage):
         """
         # Has to be imported here for now to avoid circular imports.
         from obspy.signal.invsim import paz_to_freq_resp
-        if len(frequencies) > 1000 and fast:
+        if len(frequencies) > 10000 and fast:
             resp_frequencies = np.linspace(frequencies[0], frequencies[-1],
-                                           1000, dtype=np.float64)
+                                           10000, dtype=np.float64)
         else:
             resp_frequencies = frequencies
 
@@ -368,7 +368,7 @@ class PolesZerosResponseStage(ResponseStage):
             frequencies=resp_frequencies, freq=False) * self.stage_gain
 
         # If required, do interpolation of amplitude and phase of the response
-        if len(frequencies) > 1000 and fast:
+        if len(frequencies) > 10000 and fast:
             amp = np.abs(resp)
             phase = np.radians(np.unwrap(np.angle(resp, deg=False))) / np.pi
             amp = scipy.interpolate.InterpolatedUnivariateSpline(
