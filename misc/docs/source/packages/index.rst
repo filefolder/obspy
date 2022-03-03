@@ -15,7 +15,6 @@ categories.*
     :nosignatures:
 
     obspy.core
-    obspy.db
     obspy.geodetics
     obspy.imaging
     obspy.realtime
@@ -63,7 +62,6 @@ categories.*
     obspy.clients.neic
     obspy.clients.nrl
     obspy.clients.seedlink
-    obspy.clients.seishub
     obspy.clients.syngine
 
 

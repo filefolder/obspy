@@ -60,6 +60,12 @@ Changes:
  - obspy.clients.seedlink:
    * basic client: properly terminate after finished get_info() request (see
      #2996)
+ - obspy.clients.seishub:
+   * submodule removed completely, since it is outdated and not even test
+     servers have been running for years (see #2994)
+ - obspy.db:
+   * submodule removed completely, since mostly being used in discontinued
+     seishub server (see #2994)
  - obspy.imaging:
    * fix section plot in case of a single trace only (see #2764)
    * removed basemap, now only cartopy is supported for maps (see #2961)
