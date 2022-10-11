@@ -39,6 +39,9 @@ Changes:
    * add some checks for bad phases, so "ScScS" is not allowed
      (see #2774, #3082)
    * bug fix for sources within high slowness regions (see #2976, #3100)
+ - obspy.io.alsep:
+   * new module for reading data from the Apollo missions stored in ALSEP
+     format (see #3156)
  - obspy.io.nordic:
    * add support for writing multiple amplitudes for one pick (only new format)
      and writes some amplitude lines more compact (see #3075, also #2814)
@@ -56,21 +59,42 @@ maintenance_1.3.x
 Changes:
  - obspy.core:
    * Fix exclusion of magnitude 0 events in Catalog.filter (see #3105)
-   * Trace.resample: Changed default for `window` to "hanning" following a name
-     change in scipy, "hann" is not recognized anymore in newest scipy (see
-     #3117)
+   * Trace.resample: Changed default for `window` to "hann" following a name
+     change in scipy, "hanning" is not recognized anymore in newest scipy
+     (see #3117)
+   * Fix different data length for trim/slice methods (see #2608)
+   * Add keep_empty_traces option to Stream.trim (see #2608)
    * Fix missing legend and plot artifacts in Inventory map plots at
      intersection of equator and prime meridian (see #3067)
+   * Fix a bug in recaculation of overall instrument sensitivity (see #3099)
  - obspy.clients.fdsn:
+   * Fix a bug in `get_stations_bulk` regarding parameter "includerestricted"
+     (see #3158)
    * add URL mapping 'EIDA' for http://eida-federator.ethz.ch (see #3050)
+   * Fix issue where "https://" URLs were not matched by the IRIS federator
+     client, resulting in raspberry shake matches being excluded from results
+     (see #3127)
  - obspy.clients.nrl:
+   * deprecate online NRL client as it will stop working in Spring 2023 when
+     old NRLv1 gets taken offline (see #3164)
    * enable reading from a downloaded full copy of the NRLv2 at
      http://ds.iris.edu/ds/nrl/ (see #3058)
+   * Fix a bug in recaculation of overall instrument sensitivity after
+     assembling response from separate sensor and datalogger response parts
+     (see #3099)
  - obspy.imaging:
    * Scanner/obspy-scan: skip directories without read permission (see #3115)
  - obspy.io.gse2:
    * bulletin reading: correctly add Mag2 and amplitudes even if Mag1 is not
      present (see #2420)
+ - obspy.io.mseed:
+   * fix a bug in endtime calculation when writing fixed flags block
+     information (see #3165)
+ - obspy.io.stationxml:
+   * fix a bug that resulted in losing decimation information of base type
+     response stages (see #3159)
+   * enable reading StationXML 1.2 and write new files with schema version
+     1.2 (see #3153)
  - obspy.io.wav:
    * fix writing of wav files with rescale=True and default width=None
      (see #3029)

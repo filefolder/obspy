@@ -37,8 +37,8 @@ from obspy.core.inventory import (Angle, Azimuth, ClockDrift, Dip, Distance,
 # Define some constants for writing StationXML files.
 SOFTWARE_MODULE = "ObsPy %s" % obspy.__version__
 SOFTWARE_URI = "https://www.obspy.org"
-SCHEMA_VERSION = "1.1"
-READABLE_VERSIONS = ("1.0", "1.1")
+SCHEMA_VERSION = "1.2"
+READABLE_VERSIONS = ("1.0", "1.1", "1.2")
 
 
 def _get_version_from_xmldoc(xmldoc):
@@ -63,7 +63,7 @@ def _get_version_from_xmldoc(xmldoc):
 def _is_stationxml(path_or_file_object):
     """
     Simple function checking if the passed object contains a valid StationXML
-    1.0 or StationXML 1.1 file. Returns True of False.
+    1.x file. Returns True of False.
 
     The test is not exhaustive - it only checks the root tag but that should
     be good enough for most real world use cases. If the schema is used to
@@ -526,7 +526,12 @@ def _read_response_stage(stage_elem, _ns):
                 stage_sequence_number=stage_sequence_number,
                 stage_gain=stage_gain,
                 stage_gain_frequency=stage_gain_frequency,
-                resource_id=resource_id, input_units=None, output_units=None)
+                resource_id=resource_id, input_units=None, output_units=None,
+                decimation_input_sample_rate=decimation_input_sample_rate,
+                decimation_factor=decimation_factor,
+                decimation_offset=decimation_offset,
+                decimation_delay=decimation_delay,
+                decimation_correction=decimation_correction)
         # Raise if none of the previous ones has been found.
         msg = "Could not find a valid Response Stage Type."
         raise ValueError(msg)
