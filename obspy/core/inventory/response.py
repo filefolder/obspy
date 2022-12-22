@@ -652,7 +652,7 @@ class CoefficientsTypeResponseStage(ResponseStage):
         final_resp.real = amp * np.cos(phase)
         final_resp.imag = amp * np.sin(phase)
 
-        return 
+        return final_resp
 
 class ResponseListResponseStage(ResponseStage):
     """
@@ -854,7 +854,8 @@ class FIRResponseStage(ResponseStage):
             # Here we zero the phase (FIR) and return the amplitude
             amp = np.abs(resp) * self.stage_gain + 0j
             amp = amp.real
-        return
+            
+        return amp
 
 class PolynomialResponseStage(ResponseStage):
     """
@@ -1150,8 +1151,6 @@ class Response(ComparingObject):
         else:
             start_stage -= 1
 
-        print("frequencies= ",frequencies)
-
         # range is implicitly limited to length of this list
         stages = self.response_stages[slice(start_stage, end_stage)]
         # map 0j here to ensure the curve is complex values
@@ -1160,7 +1159,8 @@ class Response(ComparingObject):
         for stage in stages[1:]:
             try:
                 #resp *= stage.get_response(frequencies=frequencies, fast=fast)
-                resp = np.multiply(resp,stage.get_response(frequencies=frequencies, fast=fast))
+                #print(resp,stage, stage.get_response(frequencies=frequencies,fast=fast))
+                resp = np.multiply(resp, stage.get_response(frequencies=frequencies, fast=fast))
             except AttributeError:
                 raise NotImplementedError
 
@@ -1171,7 +1171,8 @@ class Response(ComparingObject):
             stages = self.response_stages[slice(start_stage, end_stage)]
             ref = stages[0].get_response(frequencies=f, fast=fast)
             for stage in stages[1:]:
-                ref *= stage.get_response(frequencies=f, fast=fast)
+                #ref *= stage.get_response(frequencies=f, fast=fast)
+                ref = np.multiply(ref, stage.get_response(frequencies=f, fast=fast))
             resp *= self.instrument_sensitivity.value / np.abs(ref[0])
 
         # By now the response is in the input units of the first stage.
