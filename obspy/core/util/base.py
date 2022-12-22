@@ -63,11 +63,11 @@ NATIVE_BYTEORDER = _sys_is_le and '<' or '>'
 
 # Define Obspy hard and soft dependencies
 HARD_DEPENDENCIES = [
-    "future", "numpy", "scipy", "matplotlib", "lxml.etree", "setuptools",
+    "numpy", "scipy", "matplotlib", "lxml.etree", "setuptools",
     "sqlalchemy", "decorator", "requests"]
 OPTIONAL_DEPENDENCIES = [
-    "flake8", "pyimgur", "pyproj", "pep8-naming", "m2crypto", "shapefile",
-    "mock", "pyflakes", "geographiclib", "cartopy"]
+    "packaging", "pyproj", "pytest", "pytest-json-report", "pyshp",
+    "geographiclib", "cartopy"]
 DEPENDENCIES = HARD_DEPENDENCIES + OPTIONAL_DEPENDENCIES
 
 
@@ -440,7 +440,7 @@ def make_format_plugin_table(group="waveform", method="read", numspaces=4,
     in docstrings.
 
     >>> table = make_format_plugin_table("event", "write", 4, True)
-    >>> print(table)  # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+    >>> print(table)  # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS +SKIP
     ======... ===========... ========================================...
     Format    Used Module    _`Linked Function Call`
     ======... ===========... ========================================...

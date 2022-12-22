@@ -138,6 +138,7 @@ def _read_single_hypocenter(lines, coordinate_converter, original_picks,
     Given a list of lines (starting with a 'NLLOC' line and ending with a
     'END_NLLOC' line), parse them into an Event.
     """
+    nlloc_file_format_version = None
     try:
         # some paranoid checks..
         assert lines[0].startswith("NLLOC ")
@@ -154,6 +155,18 @@ def _read_single_hypocenter(lines, coordinate_converter, original_picks,
     for i, line in enumerate(lines):
         if line.startswith("PHASE "):
             indices_phases[0] = i
+            # determine whether it's old format or new one which has one
+            # additional item in middle. use position of magic character to
+            # find out.
+            separator_position = line.split().index('>')
+            if separator_position == 15:
+                nlloc_file_format_version = 1
+            elif separator_position == 16:
+                nlloc_file_format_version = 2
+            else:
+                msg = ("This should not happen, please open a ticket on "
+                       "github and supply your nonlinloc file for debugging")
+                raise NotImplementedError(msg)
         elif line.startswith("END_PHASE"):
             indices_phases[1] = i
 
@@ -228,6 +241,8 @@ def _read_single_hypocenter(lines, coordinate_converter, original_picks,
     hor_unc, min_hor_unc, max_hor_unc, hor_unc_azim = \
         map(float, line.split()[1:9:2])
 
+    nlloc_info_line = 'NLLOC ' + lines['NLLOC']
+
     # assign origin info
     event = Event()
     o = Origin()
@@ -238,7 +253,10 @@ def _read_single_hypocenter(lines, coordinate_converter, original_picks,
     ou = o.origin_uncertainty
     oq = o.quality
     o.comments.append(Comment(text=stats_info_string, force_resource_id=False))
+    o.comments.append(Comment(text=nlloc_info_line, force_resource_id=False))
     event.comments.append(Comment(text=comment, force_resource_id=False))
+    event.comments.append(Comment(text=nlloc_info_line,
+                                  force_resource_id=False))
 
     # SIGNATURE field's first item is LOCSIG, which is supposed to be
     # 'Identification of an individual, institiution or other entity'
@@ -251,6 +269,13 @@ def _read_single_hypocenter(lines, coordinate_converter, original_picks,
     o.creation_info = CreationInfo(creation_time=creation_time,
                                    version=version,
                                    author=signature)
+
+    # nlloc writes location status in "NLLOC" line
+    # char location status LOCATED, ABORTED, IGNORED, REJECTED
+    # set evaluation status to "rejected" if it is anything but LOCATED
+    nlloc_location_status = lines['NLLOC'].split()[1].strip('\'"')
+    if nlloc_location_status in ('ABORTED', 'IGNORED', 'REJECTED'):
+        o.evaluation_status = 'rejected'
 
     # negative values can appear on diagonal of covariance matrix due to a
     # precision problem in NLLoc implementation when location coordinates are
@@ -319,11 +344,28 @@ def _read_single_hypocenter(lines, coordinate_converter, original_picks,
         channel = line[2]
         phase = line[4]
         arrival.phase = phase
-        arrival.distance = kilometer2degrees(float(line[21]))
-        arrival.azimuth = float(line[23])
-        arrival.takeoff_angle = float(line[24])
-        arrival.time_residual = float(line[16])
-        arrival.time_weight = float(line[17])
+        if nlloc_file_format_version == 1:
+            arrival.distance = kilometer2degrees(float(line[21]))
+            arrival.azimuth = float(line[22])
+            # do not read in take off angle, if the ray takeoff quality is
+            # given as "0" for "unreliable", see #3224
+            if int(line[25]) != 0:
+                arrival.takeoff_angle = float(line[24])
+            arrival.time_residual = float(line[16])
+            arrival.time_weight = float(line[17])
+        elif nlloc_file_format_version == 2:
+            arrival.distance = kilometer2degrees(float(line[22]))
+            arrival.azimuth = float(line[23])
+            # do not read in take off angle, if the ray takeoff quality is
+            # given as "0" for "unreliable", see #3224
+            if int(line[26]) != 0:
+                arrival.takeoff_angle = float(line[25])
+            arrival.time_residual = float(line[17])
+            arrival.time_weight = float(line[18])
+        else:
+            msg = ("This should not happen, please open a ticket on "
+                   "github and supply your nonlinloc file for debugging")
+            raise NotImplementedError(msg)
         pick = Pick()
         # have to split this into ints for overflow to work correctly
         date, hourmin, sec = map(str, line[6:9])
@@ -401,22 +443,25 @@ def write_nlloc_obs(catalog, filename, **kwargs):
     for pick in catalog[0].picks:
         wid = pick.waveform_id
         station = wid.station_code or "?"
-        component = wid.channel_code and wid.channel_code[-1].upper() or "?"
-        if component not in "ZNEH":
-            component = "?"
+        component = wid.channel_code or "?"
         onset = ONSETS_REVERSE.get(pick.onset, "?")
         phase_type = pick.phase_hint or "?"
         polarity = POLARITIES_REVERSE.get(pick.polarity, "?")
         date = pick.time.strftime("%Y%m%d")
         hourminute = pick.time.strftime("%H%M")
         seconds = pick.time.second + pick.time.microsecond * 1e-6
-        time_error = pick.time_errors.uncertainty or -1
-        if time_error == -1:
-            try:
-                time_error = (pick.time_errors.upper_uncertainty +
-                              pick.time_errors.lower_uncertainty) / 2.0
-            except Exception:
-                pass
+        if pick.time_errors.upper_uncertainty is not None and \
+                pick.time_errors.lower_uncertainty is not None:
+            time_error = (pick.time_errors.upper_uncertainty +
+                          pick.time_errors.lower_uncertainty) / 2.0
+        elif pick.time_errors.uncertainty is not None:
+            time_error = pick.time_errors.uncertainty
+        else:
+            # see discussion in #2371
+            msg = ("Writing pick without time uncertainty. Time uncertainty "
+                   "will be written as '0.0'")
+            warnings.warn(msg)
+            time_error = 0.0
         info_ = fmt % (station.ljust(6), "?".ljust(4), component.ljust(4),
                        onset.ljust(1), phase_type.ljust(6), polarity.ljust(1),
                        date, hourminute, seconds, time_error, -1, -1, -1)
