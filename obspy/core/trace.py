@@ -2692,7 +2692,8 @@ seismometer_correction_simulation.html#using-a-resp-file>`_.
     @_add_processing_info
     def remove_response(self, inventory=None, output="VEL", water_level=60,
                         pre_filt=None, zero_mean=True, taper=True,
-                        taper_fraction=0.05, plot=False, fig=None, **kwargs):
+                        taper_fraction=0.05, plot=False, fig=None, fast=True,
+                        max_freq=10, min_freq=.003, freq_factor=16, **kwargs):
         """
         Deconvolve instrument response.
 
@@ -2841,7 +2842,68 @@ seismometer_correction_simulation.html#using-a-resp-file>`_.
                                          invert_spectrum)
         if plot:
             import matplotlib.pyplot as plt
+            
+        if fast and output=='VEL' and plot==False:
 
+            def next_pow_2(n):
+                """Return the next power of 2 greater than or equal to n"""
+                return 2**(n-1).bit_length()
+
+            try:
+                r = self._get_response(inventory)
+                poles = r.response_stages[0].poles
+                zeros = r.response_stages[0].zeros
+                sensitivity = r.instrument_sensitivity.value
+                A0 = r.response_stages[0].normalization_factor
+            except:
+                msg = "Could not find response for %s.%s.%s.%s"
+                print(msg % (self.stats.network, self.stats.station,
+                             self.stats.location, self.stats.channel))
+                return None
+
+            dt = self.stats.delta
+            nyquist = 0.5 / dt
+            max_freq_adjusted = min(max_freq, nyquist * 0.99)
+            nfreq = max(next_pow_2(self.stats.npts // freq_factor), 64)
+            freq = np.linspace(min_freq, max_freq_adjusted, nfreq)
+            w = freq * 2 * np.pi
+
+            resp = np.ones(w.shape, dtype=complex)
+            for zero in zeros:
+                resp *= 1j * w - zero
+            for pole in poles:
+                resp /= 1j * w - pole
+            resp *= (sensitivity * A0)
+
+            data = self.data.astype(np.float64)
+            npts = len(data)
+
+            if zero_mean:
+                data -= data.mean()
+            if taper:
+                data *= cosine_taper(npts, taper_fraction,
+                                     sactaper=True, halfcosine=False)
+
+            fft_data = np.fft.rfft(data)
+            fft_freq = np.fft.rfftfreq(npts, dt)
+
+            if pre_filt:
+                freq_domain_taper = cosine_sac_taper(fft_freq, flimit=pre_filt)
+                fft_data *= freq_domain_taper
+
+            resp_interp = np.interp(fft_freq, freq, np.abs(resp)) * np.exp(1j * np.interp(fft_freq, freq, np.angle(resp)))
+            
+            if water_level is None:
+                fft_data_corrected = fft_data / resp_interp
+            else:
+                resp_water_level = water_level * np.abs(resp_interp).max()
+                invert_spectrum(resp_interp, resp_water_level)
+                fft_data_corrected = fft_data * resp_interp
+
+            self.data = np.fft.irfft(fft_data_corrected, n=npts)
+
+            return self
+                            
         response = self._get_response(inventory)
         # polynomial response using blockette 62 stage 0
         if not response.response_stages and response.instrument_polynomial:
