@@ -4,6 +4,7 @@ master
 Changes:
  - General
    * Fix documentation for the command line scripts (see #1208 #3569)
+   * Fix code coverage reporting (see #3646)
  - obspy.core:
    * response: allow recalculating overall sensitivity even if unit type is not
      one of VEL/ACC/DISP (see #3235)
@@ -70,6 +71,8 @@ Changes:
  - obspy.io.stationxml:
    * Fix a bug writing the informational "description" field of instrument
      sensitivity input/output units (see #3572).
+ - obspy.io.win:
+   * Fix reading sampling rate larger than 1 bytes (see #3641)
  - obspy.io.xseed:
    * Improve error message when trying to read a local path to a file that does
      not exist with XSEED Parser (see #2686)
