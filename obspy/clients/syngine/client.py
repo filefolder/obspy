@@ -24,9 +24,10 @@ from ..base import WaveformClient, HTTPClient, DEFAULT_USER_AGENT, \
 class Client(WaveformClient, HTTPClient):
     """
     Client for the EarthScope/IRIS Syngine service.
+    Note that we are still using the IRIS address (March 2026).
     """
     def __init__(self,
-                 base_url="https://service.earthscope.org/irisws/syngine/1",
+                 base_url="https://service.iris.edu/irisws/syngine/1",
                  user_agent=DEFAULT_USER_AGENT, debug=False, timeout=20):
         """
         Initializes a Syngine Client.

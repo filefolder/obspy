@@ -14,8 +14,9 @@ from obspy.core.util.base import NamedTemporaryFile
 from obspy.clients.syngine import Client
 from obspy.clients.base import DEFAULT_TESTING_USER_AGENT, ClientHTTPException
 
-
-BASE_URL = "https://service.earthscope.org/irisws/syngine/1"
+# n.b. service.earthscope.org does not fully match iris syngine pages,
+# 'model' in particular. As of March 2026.
+BASE_URL = "https://service.iris.edu/irisws/syngine/1"
 pytestmark = pytest.mark.network
 
 
@@ -49,7 +50,7 @@ class TestClient():
 
         assert p.call_count == 1
         assert p.call_args[1]["url"] == \
-            'https://service.earthscope.org/irisws/syngine/1/info'
+            f'{BASE_URL}/info'
         assert p.call_args[1]["params"] == {'model': 'test_model'}
         assert p.call_args[1]["headers"] == \
             {'User-Agent': DEFAULT_TESTING_USER_AGENT}
@@ -75,7 +76,7 @@ class TestClient():
 
         assert p.call_count == 1
         assert p.call_args[1]["url"] == \
-            'https://service.earthscope.org/irisws/syngine/1/models'
+            f'{BASE_URL}/models'
         assert p.call_args[1]["params"] is None
         assert p.call_args[1]["headers"] == \
             {'User-Agent': DEFAULT_TESTING_USER_AGENT}
@@ -98,7 +99,7 @@ class TestClient():
 
         assert p.call_count == 1
         assert p.call_args[1]["url"] == \
-            'https://service.earthscope.org/irisws/syngine/1/version'
+            f'{BASE_URL}/version'
         assert p.call_args[1]["params"] is None
         assert p.call_args[1]["headers"] == \
             {'User-Agent': DEFAULT_TESTING_USER_AGENT}
@@ -114,7 +115,7 @@ class TestClient():
             buf.seek(0, 0)
             r.content = buf.read()
 
-        # https://service.earthscope.org/irisws/syngine/1/query?network=IU&
+        # https://service.iris.edu/irisws/syngine/1/query?network=IU&
         # station=ANMO&components=ZRT&eventid=GCMT:M110302J
         with mock.patch("requests.get") as p:
             p.return_value = r
@@ -127,7 +128,7 @@ class TestClient():
 
         assert p.call_count == 1
         assert p.call_args[1]["url"] == \
-            "https://service.earthscope.org/irisws/syngine/1/query"
+            f'{BASE_URL}/query'
         assert p.call_args[1]["params"] == {
             "components": "ZRT",
             "eventid": "GCMT:M110302J",
@@ -138,7 +139,7 @@ class TestClient():
         assert p.call_args[1]["headers"] == \
             {"User-Agent": DEFAULT_TESTING_USER_AGENT}
 
-        # https://service.earthscope.org/irisws/syngine/1/query?network=_GSN&
+        # https://service.iris.edu/irisws/syngine/1/query?network=_GSN&
         # components=Z&eventid=GCMT:M110302J&endtime=1800
         with mock.patch("requests.get") as p:
             p.return_value = r
@@ -152,7 +153,7 @@ class TestClient():
 
         assert p.call_count == 1
         assert p.call_args[1]["url"] == \
-            "https://service.earthscope.org/irisws/syngine/1/query"
+            f'{BASE_URL}/query'
         assert p.call_args[1]["params"] == {
             "components": "Z",
             "endtime": 1800.0,
@@ -163,7 +164,7 @@ class TestClient():
         assert p.call_args[1]["headers"] == \
             {"User-Agent": DEFAULT_TESTING_USER_AGENT}
 
-        # https://service.earthscope.org/irisws/syngine/1/query?network=_GSN&
+        # https://service.iris.edu/irisws/syngine/1/query?network=_GSN&
         # components=Z&eventid=GCMT:M110302J&starttime=P-10&endtime=ScS%2B60
         with mock.patch("requests.get") as p:
             p.return_value = r
@@ -178,7 +179,7 @@ class TestClient():
 
         assert p.call_count == 1
         assert p.call_args[1]["url"] == \
-            "https://service.earthscope.org/irisws/syngine/1/query"
+            f'{BASE_URL}/query'
         assert p.call_args[1]["params"] == {
             "components": "Z",
             "starttime": "P-10",
@@ -214,7 +215,7 @@ class TestClient():
                                  sourcemomenttensor=[1, 2, 3, 4, 5, 6])
         assert p.call_count == 1
         assert p.call_args[1]["url"] == \
-            "https://service.earthscope.org/irisws/syngine/1/query"
+            f'{BASE_URL}/query'
         assert p.call_args[1]["params"] == {
             "model": "ak135f_5s",
             "format": "miniseed",
@@ -226,7 +227,7 @@ class TestClient():
                                  sourcedoublecouple=[1, 2, 3, 4])
         assert p.call_count == 1
         assert p.call_args[1]["url"] == \
-            "https://service.earthscope.org/irisws/syngine/1/query"
+            f'{BASE_URL}/query'
         assert p.call_args[1]["params"] == {
             "model": "ak135f_5s",
             "format": "miniseed",
@@ -238,7 +239,7 @@ class TestClient():
                                  sourceforce=[3.32, 4.23, 5.11])
         assert p.call_count == 1
         assert p.call_args[1]["url"] == \
-            "https://service.earthscope.org/irisws/syngine/1/query"
+            f'{BASE_URL}/query'
         assert p.call_args[1]["params"] == {
             "model": "ak135f_5s",
             "format": "miniseed",
