@@ -445,7 +445,7 @@ class Client(object):
                    includeallmagnitudes=None, includearrivals=None,
                    eventid=None, limit=None, offset=None, orderby=None,
                    catalog=None, contributor=None, updatedafter=None,
-                   filename=None, **kwargs):
+                   filename=None, split_requests=None, **kwargs):
         """
         Query the event service of the client.
 
@@ -557,6 +557,8 @@ class Client(object):
         :param filename: If given, the downloaded data will be saved there
             instead of being parsed to an ObsPy object. Thus it will contain
             the raw data from the webservices.
+        :param split_requests: If given, perform multiple event requests
+            by evenly subdividing the starttime and endtime window.
 
 
         Any additional keyword arguments will be passed to the webservice as
@@ -572,18 +574,58 @@ class Client(object):
         locs = locals()
         setup_query_dict('event', locs, kwargs)
 
-        url = self._create_url_from_parameters(
-            "event", DEFAULT_PARAMETERS['event'], kwargs)
-
-        data_stream = self._download(url)
-        data_stream.seek(0, 0)
-        if filename:
-            self._write_to_file_object(filename, data_stream)
-            data_stream.close()
+        if split_requests:
+            try:
+                split_requests = int(split_requests)
+            except (ValueError, TypeError):
+                warnings.warn(
+                    "'split_requests' must be a positive integer, got %r; "
+                    "continuing without splitting." % (split_requests,))
+                split_requests = 0
+            else:
+                if split_requests < 1:
+                    warnings.warn(
+                        "'split_requests' must be a positive integer, got "
+                        "%r; continuing without splitting." % split_requests)
+                    split_requests = 0
         else:
-            cat = obspy.read_events(data_stream, format="quakeml")
-            data_stream.close()
-            return cat
+            split_requests = 0
+
+        if split_requests > 0:
+            starttime = UTCDateTime(kwargs["starttime"])
+            endtime = UTCDateTime(kwargs["endtime"])
+            step = (endtime - starttime) / split_requests
+
+            cat = obspy.core.event.Catalog()
+            for i in range(split_requests):
+                kwargs["starttime"] = starttime + i * step
+                kwargs["endtime"] = starttime + (i + 1) * step
+                url = self._create_url_from_parameters(
+                    "event", DEFAULT_PARAMETERS['event'], kwargs)
+                try:
+                    data_stream = self._download(url)
+                except FDSNNoDataException:
+                    continue
+                data_stream.seek(0, 0)
+                cat += obspy.read_events(data_stream, format='QUAKEML')
+                data_stream.close()
+            if filename:
+                cat.write(filename,format='QUAKEML')
+            else:
+                return cat
+        else:
+            url = self._create_url_from_parameters(
+                "event", DEFAULT_PARAMETERS['event'], kwargs)
+            data_stream = self._download(url)
+            data_stream.seek(0, 0)
+
+            if filename:
+                self._write_to_file_object(filename, data_stream)
+                data_stream.close()
+            else:
+                cat = obspy.read_events(data_stream, format='QUAKEML')
+                data_stream.close()
+                return cat
 
     def get_stations(self, starttime=None, endtime=None, startbefore=None,
                      startafter=None, endbefore=None, endafter=None,
