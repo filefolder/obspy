@@ -593,7 +593,10 @@ class Client(object):
 
         if split_requests > 0:
             starttime = UTCDateTime(kwargs["starttime"])
-            endtime = UTCDateTime(kwargs["endtime"])
+            try:
+                endtime = UTCDateTime(kwargs["endtime"])
+            except:
+                endtime = UTCDateTime.now()
             step = (endtime - starttime) / split_requests
 
             cat = obspy.core.event.Catalog()
