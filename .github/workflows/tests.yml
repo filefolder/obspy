@@ -51,11 +51,11 @@ jobs:
             "target_url": "https://tests.obspy.org/?pr=${{ github.event.pull_request.number }}"
             }'
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.x'
 
@@ -88,27 +88,27 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.12', '3.13', '3.14']
         options: [default]
         include:
           # The mindep option indicates optional dependencies should not be installed.
           - os: ubuntu-latest
-            python-version: '3.10'
+            python-version: '3.12'
             options: default mindep
           # The mindepversion option indicates dependencies should be installed with minimal supported version.
           - os: ubuntu-latest
-            python-version: '3.10'
+            python-version: '3.12'
             options: default mindepversion
           - os: macos-latest
-            python-version: '3.10'
+            python-version: '3.12'
             options: default mindepversion
           - os: windows-latest
-            python-version: '3.10'
+            python-version: '3.12'
             options: default mindepversion
           # For push events and for test_network labels, options is set to 'network' and runs for network tests are added.
           # Otherwise these include statements do nothing, because options='default' is already present in matrix.
           - os: ubuntu-latest
-            python-version: '3.10'
+            python-version: '3.12'
             options: ${{ (github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'test_network')) && 'network mindepversion' || 'default' }}
           - os: ubuntu-latest
             python-version: '3.14'
@@ -132,6 +132,10 @@ jobs:
     # Ensure network tests dont fail build.
     continue-on-error: ${{ contains(matrix.options, 'network') || contains(matrix.options, 'warnings') }}
     env:
+      # set environment variables for FSNWS authenticated tests at EarthScope
+      OBSPY_TESTS_USER_AGENT: ${{ secrets.OBSPY_TESTS_USER_AGENT }}
+      OBSPY_TESTS_EARTHSCOPE_AUTH_USER: ${{ secrets.OBSPY_TESTS_EARTHSCOPE_AUTH_USER }}
+      OBSPY_TESTS_EARTHSCOPE_AUTH_PASSWORD: ${{ secrets.OBSPY_TESTS_EARTHSCOPE_AUTH_PASSWORD }}
       # set path of test environment for caching
       prefix: ${{ startsWith(matrix.os, 'ubuntu') && '/usr/share/miniconda3/envs/test' || startsWith(matrix.os, 'macos') && '/Users/runner/miniconda3/envs/test' || startsWith(matrix.os, 'windows') && 'C:\Miniconda3\envs\test' }}
       # set individual cache key
@@ -141,7 +145,7 @@ jobs:
       # set additional runtest options (--keep-images, --network, -W error)
       runtest_options: ${{ github.event_name == 'pull_request' && '--keep-images' || '' }} ${{ contains(matrix.options, 'network') && '--network' || '' }} ${{ contains(matrix.options, 'warnings') && '-W error' || '' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -155,7 +159,7 @@ jobs:
           activate-environment: test
           python-version: ${{ matrix.python-version }}
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: ${{ env.prefix }}
           key: ${{ env.cache_key }}-hash${{ hashFiles(env.env_file) }}-${{ steps.date.outputs.date }}-${{ env.CACHE_NUMBER }}
@@ -168,23 +172,6 @@ jobs:
         run: conda env update -n test -f ${{ env.env_file }}
         if: steps.cache.outputs.cache-hit != 'true'
         timeout-minutes: 5
-
-      - name: Fix for missing libtiff.so.5 for Python3.8 on Ubuntu
-        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8'
-        shell: bash -l {0}
-        run: |
-          # Create symlink in conda environment
-          if [ -f $CONDA_PREFIX/lib/libtiff.so.6 ]; then
-            ln -sf $CONDA_PREFIX/lib/libtiff.so.6 $CONDA_PREFIX/lib/libtiff.so.5
-            echo "Created symlink: libtiff.so.6 -> libtiff.so.5"
-          elif [ -f $CONDA_PREFIX/lib/libtiff.so ]; then
-            ln -sf $CONDA_PREFIX/lib/libtiff.so $CONDA_PREFIX/lib/libtiff.so.5
-            echo "Created symlink: libtiff.so -> libtiff.so.5"
-          else
-            echo "Warning: Could not find libtiff library to link"
-            ls -la $CONDA_PREFIX/lib/libtiff* || echo "No libtiff files found"
-          fi
-
 
       - name: print package info
         shell: bash -l {0}
@@ -204,7 +191,7 @@ jobs:
           obspy-runtests --cov obspy --cov-report=xml:${GITHUB_WORKSPACE}/coverage.xml --cov-append --report ${{ env.runtest_options }}
 
       - name: upload coverage
-        uses: codecov/codecov-action@v6.0.0
+        uses: codecov/codecov-action@v7.0.0
         if: always() && (steps.tests.outcome == 'success' || steps.tests.outcome == 'failure')
         with:
           flags: ${{ contains(matrix.options, 'network') && 'unittests_network' || 'unittests' }}

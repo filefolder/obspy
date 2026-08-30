@@ -21,7 +21,7 @@ jobs:
     if: github.event_name != 'pull_request' || ((github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'build_docs')) || github.event.label.name == 'build_docs')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -29,10 +29,14 @@ jobs:
         uses: conda-incubator/setup-miniconda@v4
         with:
           miniconda-version: 'latest'
-          python-version: '3.11'
+          python-version: '3.12'
           activate-environment: obspydoc
           environment-file: .github/docs_conda_env.yml
-
+      - name: print package info
+        shell: bash -l {0}
+        run: |
+          conda info -a
+          conda list
       - name: install obspy
         shell: bash -l {0}
         run: |
